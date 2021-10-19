@@ -1,8 +1,8 @@
 import { bold, inlineCode, spoiler } from '@discordjs/builders';
-import { Message, MessageEmbed, Permissions, Snowflake } from 'discord.js';
+import { Message, MessageActionRow, MessageButton, MessageEmbed, Permissions, Snowflake } from 'discord.js';
 import i18next from 'i18next';
 import { redisNumberOrDefault } from '../../utils';
-import { COLOR_DISCORD_DANGER, COLOR_DISCORD_SUCCESS } from '../../utils/constants';
+import { CID_SEPARATOR, COLOR_DISCORD_DANGER, COLOR_DISCORD_SUCCESS } from '../../utils/constants';
 import { LOGCHANNEL, MENTION_THRESHOLD, SCAM_THRESHOLD, SPAM_THRESHOLD } from '../../utils/keys';
 import { logger } from '../../utils/logger';
 import { checkScam } from './checkScam';
@@ -73,6 +73,7 @@ export async function checkSpam(message: Message) {
 				reasonParts.push(i18next.t('antiraid.reason.content'));
 			}
 
+			let success = true;
 			try {
 				await member.ban({ days: 1, reason: reasonParts.join(' ') });
 
@@ -82,9 +83,11 @@ export async function checkSpam(message: Message) {
 				}
 
 				embed.setColor(COLOR_DISCORD_SUCCESS);
+				success = true;
 			} catch (error: any) {
 				embed.setColor(COLOR_DISCORD_DANGER);
 				descriptionParts.push(`${bold(i18next.t('antiraid.description.error'))}: ${inlineCode(error.message)}`);
+				success = false;
 			}
 
 			embed.setDescription(descriptionParts.join('\n'));
@@ -93,7 +96,20 @@ export async function checkSpam(message: Message) {
 					?.permissionsFor(client.user!)
 					?.has([Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.EMBED_LINKS, Permissions.FLAGS.VIEW_CHANNEL])
 			) {
-				await logChannel.send({ embeds: [embed] });
+				const components = [];
+				if (success) {
+					// ~ unban button
+					components.push(
+						new MessageActionRow().addComponents(
+							new MessageButton()
+								.setStyle('SUCCESS')
+								.setCustomId(`unban${CID_SEPARATOR}${author.id}`)
+								.setLabel(i18next.t('button.label.unban')),
+						),
+					);
+				}
+
+				await logChannel.send({ embeds: [embed], components });
 			}
 		}
 	} catch (e) {

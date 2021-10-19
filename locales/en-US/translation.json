@@ -64,5 +64,15 @@
 			"mentions": "Mention spam detected (member banned)",
 			"content": "Spam detected (member banned)"
 		}
+	},
+	"button": {
+		"label": {
+			"unban": "Unban"
+		},
+		"unban": {
+			"missing_permissions": "Missing permission to unban users.",
+			"not_banned": "The user is not banned or something else went wrong when attempting to unban.",
+			"success": "Unbanned user {{-tag}} ({{id}})."
+		}
 	}
 }
