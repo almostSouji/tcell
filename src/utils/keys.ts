@@ -5,7 +5,7 @@ export const SCAM_THRESHOLD = (guild: string) => `guild:${guild}:scam_threshold`
 //* NUM (seconds)
 export const SCAM_EXPIRE_SECONDS = (guild: string) => `guild:${guild}:scam_expire_seconds`;
 //* NUM
-export const SPAM_THRESHOLD = (guild: string) => `guild:${guild}:scam_threshold`;
+export const SPAM_THRESHOLD = (guild: string) => `guild:${guild}:spam_threshold`;
 //* NUM (seconds)
 export const SPAM_EXPIRE_SECONDS = (guild: string) => `guild:${guild}:spam_expire_seconds`;
 //* NUM

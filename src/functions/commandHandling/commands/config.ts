@@ -116,7 +116,7 @@ export async function handleConfigCommand(interaction: CommandInteraction, args:
 					const thresholdKey = SCAM_THRESHOLD(guild.id);
 					const expireKey = SCAM_EXPIRE_SECONDS(guild.id);
 
-					if (args.scam.threshold === 0) {
+					if (args.scam.threshold === 0 || args.scam.expire === 0) {
 						// + disabled
 						await redis.del(thresholdKey);
 						await redis.del(expireKey);
