@@ -1,0 +1,68 @@
+{
+	"ready": {
+		"ready_log": "Ready on {{-user}} ({{id}})!"
+	},
+	"units": {
+		"seconds": "{{count}} second",
+		"seconds_plural": "{{count}} seconds"
+	},
+	"common": {
+		"errors": {
+			"not_in_dm": "This command cannot be used in direct messages.",
+			"during_command": "Something went wrong while executing this command.",
+			"unknown_button": "Unknown button.",
+			"unknown_select": "Unknown select menu.",
+			"missing_permissions": "You need Administrator permissions to run this command."
+		}
+	},
+	"command": {
+		"config": {
+			"show": {
+				"settings": {
+					"spam": "Spam settings",
+					"scam": "Scam settings",
+					"mentions": "Mention settings",
+					"threshold": "Threshold",
+					"expire": "Expire",
+					"logchannel": "Logchannel"
+				},
+				"none": "No conifguration found"
+			},
+			"scam": {
+				"disabled": "Disabled anti-scam measures.",
+				"enabled": "Enabled anti-scam measures ({{threshold}} in {{count}} second).",
+				"enabled_plural": "Enabled anti-scam measures ({{threshold}} in {{count}} seconds)."
+			},
+			"spam": {
+				"disabled": "Disabled anti-spam measures.",
+				"enabled": "Enabled anti-spam measures ({{threshold}} in {{count}} second).",
+				"enabled_plural": "Enabled anti-spam measures ({{threshold}} in {{count}} seconds)."
+			},
+			"mentions": {
+				"disabled": "Disabled anti-mention measures.",
+				"enabled": "Enabled anti-mention measures ({{threshold}} in {{count}} second).",
+				"enabled_plural": "Enabled anti-mention measures ({{threshold}} in {{count}} seconds)."
+			},
+			"log": {
+				"success": "Enabled logging in {{-channel}}.",
+				"permissions": "Missing permissions to log in in {{-channel}}."
+			}
+		}
+	},
+	"commandexecution": {
+		"no_handler": "No handler found for command {{command}} {{id}}"
+	},
+	"antiraid": {
+		"description": {
+			"member": "Member",
+			"domains": "Detected Domain",
+			"domains_plural": "Detected Domains",
+			"error": "Error"
+		},
+		"reason": {
+			"scam": "Scam detected (member banned)",
+			"mentions": "Mention spam detected (member banned)",
+			"content": "Spam detected (member banned)"
+		}
+	}
+}

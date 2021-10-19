@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  application:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+    restart: always
+
+  redis:
+    image: redis:alpine
+    command: ['redis-server', '--appendonly', 'yes']
+    restart: always
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
