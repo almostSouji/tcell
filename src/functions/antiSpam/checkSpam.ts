@@ -75,6 +75,12 @@ export async function checkSpam(message: Message) {
 
 			try {
 				await member.ban({ days: 1, reason: reasonParts.join(' ') });
+
+				const keys = await redis.keys(`*guild:${guild.id}*user:${author.id}*`);
+				if (keys.length) {
+					await redis.unlink(keys);
+				}
+
 				embed.setColor(COLOR_DISCORD_SUCCESS);
 			} catch (error: any) {
 				embed.setColor(COLOR_DISCORD_DANGER);
