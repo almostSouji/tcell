@@ -85,7 +85,7 @@ export async function handleConfigCommand(interaction: CommandInteraction, args:
 							`${bold(i18next.t('command.config.show.settings.threshold'))}: ${mentionThreshold}`,
 							`${bold(i18next.t('command.config.show.settings.expire'))}: ${i18next.t('units.seconds', {
 								count: mentionExpireSeconds,
-							})}}`,
+							})}`,
 						];
 						embed.addField(i18next.t('command.config.show.settings.mentions'), lines.join('\n'), true);
 					}
