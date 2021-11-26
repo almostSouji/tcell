@@ -44,7 +44,7 @@ export async function handleConfigCommand(interaction: CommandInteraction, args:
 	}
 
 	const member = interaction.member as GuildMember;
-	if (!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+	if (!member.permissions.has(Permissions.FLAGS.MANAGE_GUILD)) {
 		await replyWithError(interaction, i18next.t('common.errors.missing_permissions'));
 		return;
 	}
