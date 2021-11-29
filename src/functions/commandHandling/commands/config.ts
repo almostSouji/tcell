@@ -197,14 +197,16 @@ export async function handleConfigCommand(interaction: CommandInteraction, args:
 						descriptionParts.push(
 							i18next.t('command.config.log.success', { channel: channelMention(args.log.channel.id) }),
 						);
+						embed.setColor(COLOR_DISCORD_SUCCESS);
 					} else {
 						// - missing perms
 						descriptionParts.push(
 							i18next.t('command.config.log.permissions', { channel: channelMention(args.log.channel.id) }),
 						);
+						embed.setColor(COLOR_DISCORD_DANGER);
 					}
 				}
-				embed.setColor(COLOR_DISCORD_SUCCESS);
+
 				break;
 		}
 
