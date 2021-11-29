@@ -45,7 +45,7 @@
 			},
 			"log": {
 				"success": "Enabled logging in {{-channel}}.",
-				"permissions": "Missing permissions to log in in {{-channel}}."
+				"permissions": "Missing permissions to log in {{-channel}}."
 			}
 		}
 	},
