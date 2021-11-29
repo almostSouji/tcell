@@ -11,7 +11,7 @@ export async function totalScams(
 	const redis = client.redis;
 
 	const scamKey = USER_SCAM(guildId, userId);
-	const total = await redis.incrby(scamKey, scamDomains.length ? 0 : 1);
+	const total = await redis.incrby(scamKey, scamDomains.length ? 1 : 0);
 	await redis.expire(scamKey, await redisNumberOrDefault(redis, SCAM_EXPIRE_SECONDS(guildId), 20));
 	return total;
 }
