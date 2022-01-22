@@ -19,5 +19,3 @@ export const USER_SPAM = (guild: string, user: string, hash: string) =>
 export const USER_SCAM = (guild: string, user: string) => `guild:${guild}:user:${user}:scams`;
 //* STR
 export const USER_MENTIONS = (guild: string, user: string) => `guild:${guild}:user:${user}:mentions`;
-//* STR
-export const SCAM_DOMAINS = 'scamdomains';

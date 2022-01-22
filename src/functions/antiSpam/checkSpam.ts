@@ -24,8 +24,13 @@ export async function checkSpam(message: Message) {
 
 		const totalMentionCount = await totalMentions(message);
 		const totalContentCount = await totalContent(client, content, guild.id, author.id);
-		const scamDomains = await checkScam(client, content);
-		const totalScamCount = await totalScams(client, scamDomains, guild.id, author.id);
+		const scamDomains = await checkScam(redis, content);
+		const totalScamCount = await totalScams(
+			client,
+			scamDomains.map((d) => d.host),
+			guild.id,
+			author.id,
+		);
 
 		const mentionThreshold = await redisNumberOrDefault(redis, MENTION_THRESHOLD(guild.id), Infinity);
 		const spamThreshold = await redisNumberOrDefault(redis, SPAM_THRESHOLD(guild.id), Infinity);
@@ -34,6 +39,21 @@ export async function checkSpam(message: Message) {
 		const mentionExceeded = totalMentionCount >= mentionThreshold;
 		const contentExceeded = totalContentCount >= spamThreshold;
 		const scamExceeded = totalScamCount >= scamThreshold;
+
+		logger.debug({
+			totalMentionCount,
+			totalContentCount,
+			scamDomains,
+			totalScamCount,
+			mentionThreshold,
+			spamThreshold,
+			scamThreshold,
+			mentionExceeded,
+			contentExceeded,
+			scamExceeded,
+			authorId: message.author.id,
+			author: message.author.tag,
+		});
 
 		if (scamExceeded || mentionExceeded || contentExceeded) {
 			if (!member?.bannable) return;
@@ -61,7 +81,7 @@ export async function checkSpam(message: Message) {
 				descriptionParts.push(bold(i18next.t('antiraid.reason.scam')));
 				descriptionParts.push(
 					`${bold(i18next.t('antiraid.description.domains', { count: scamDomains.length }))}: ${scamDomains
-						.map((s) => spoiler(s))
+						.map((s) => spoiler(s.host))
 						.join(', ')}`,
 				);
 				reasonParts.push(i18next.t('antiraid.reason.scam'));
@@ -75,7 +95,9 @@ export async function checkSpam(message: Message) {
 
 			let success = true;
 			try {
-				await member.ban({ days: 1, reason: reasonParts.join(' ') });
+				if (guild.id !== '900017700850507807') {
+					await member.ban({ days: 1, reason: reasonParts.join(' ') });
+				}
 
 				const keys = await redis.keys(`*guild:${guild.id}*user:${author.id}*`);
 				if (keys.length) {

@@ -1,8 +1,18 @@
-import { Client } from 'discord.js';
-import { SCAM_DOMAINS } from '../../utils/keys';
+import type { Redis } from 'ioredis';
+import { URL } from 'url';
+import { createHash } from 'crypto';
+
+import { ScamRedisKeys, scamURLEnvs } from './refreshScamDomains';
 import { logger } from '../../utils/logger';
 import { resolveRedirect } from '../../utils/resolveRedirect';
-import { URL } from 'url';
+
+const scamDomainChecks = {
+	SCAM_DOMAIN_URL: (url: URL, host: string) => `.${url.host}`.endsWith(`.${host}`),
+	SCAM_DOMAIN_DISCORD_URL: (url: URL, hash: string) => {
+		const inHash = createHash('sha256').update(url.host).digest('hex');
+		return hash === inHash;
+	},
+};
 
 function urlOption(url: string): URL | null {
 	try {
@@ -12,15 +22,38 @@ function urlOption(url: string): URL | null {
 	}
 }
 
-export async function checkScam(client: Client, content: string): Promise<string[]> {
-	const redis = client.redis;
+interface ScamDomainHit {
+	lists: string[];
+	host: string;
+	full: string;
+}
 
+async function checkDomain(redis: Redis, url: URL): Promise<ScamDomainHit | null> {
+	const listHits: string[] = [];
+
+	for (const urlEnv of scamURLEnvs) {
+		const list = await redis.smembers(ScamRedisKeys[urlEnv]);
+		const hit = list.find((d) => scamDomainChecks[urlEnv](url, d));
+		if (hit) {
+			listHits.push(urlEnv);
+			continue;
+		}
+	}
+
+	return listHits.length
+		? {
+				lists: listHits,
+				host: url.host,
+				full: url.href,
+		  }
+		: null;
+}
+
+export async function checkScam(redis: Redis, content: string): Promise<ScamDomainHit[]> {
 	const linkRegex = /(?:https?:\/\/)(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*/gi;
 
-	const trippedDomains = [];
 	let matches: any[] | null = [];
-
-	const scamDomains = await redis.smembers(SCAM_DOMAINS);
+	const trippedDomains: ScamDomainHit[] = [];
 
 	while ((matches = linkRegex.exec(content)) !== null) {
 		const url = urlOption(matches[0]);
@@ -28,10 +61,12 @@ export async function checkScam(client: Client, content: string): Promise<string
 			continue;
 		}
 
-		const hit = scamDomains.find((d) => url.host.endsWith(d));
-
+		const hit = await checkDomain(redis, url);
 		if (hit) {
 			trippedDomains.push(hit);
+		}
+
+		if (!(await redis.sismember('linkshorteners', url.host))) {
 			continue;
 		}
 
@@ -42,15 +77,25 @@ export async function checkScam(client: Client, content: string): Promise<string
 				continue;
 			}
 
-			const hit = scamDomains.find((domain) => resolved.host.endsWith(domain));
+			const hit = await checkDomain(redis, resolved);
 
-			if (hit) {
-				trippedDomains.push(hit);
+			if (!hit) {
+				continue;
 			}
+
+			trippedDomains.push(hit);
 		} catch (e) {
 			const error = e as Error;
 			logger.error(error, error.message);
 		}
+	}
+
+	if (trippedDomains.length) {
+		logger.info({
+			msg: 'Found scam domains',
+			content,
+			trippedDomains,
+		});
 	}
 
 	return trippedDomains;
